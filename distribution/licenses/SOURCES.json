@@ -1,0 +1,62 @@
+{
+  "Arduino-ESP32-LGPL.txt": {
+    "source": "https://github.com/espressif/arduino-esp32/blob/2.0.17/LICENSE.md",
+    "sha256": "994ce1902a23c74519b5d118c6bbb657edabce91dd6b7cc825d86bb8f5c9780f"
+  },
+  "ESP-IDF-Apache.txt": {
+    "source": "https://github.com/espressif/esp-idf/blob/v4.4.7/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  "ESP-IDF-copyrights.txt": {
+    "source": "https://github.com/espressif/esp-idf/blob/v4.4.7/docs/en/COPYRIGHT.rst",
+    "sha256": "a1db55f6af33968650e8c53553fc58386bf3d871d740ccfe464c73c60779acc7"
+  },
+  "FreeRTOS.txt": {
+    "source": "https://github.com/espressif/esp-idf/blob/v4.4.7/components/freertos/LICENSE.md",
+    "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1"
+  },
+  "newlib.txt": {
+    "source": "https://github.com/espressif/esp-idf/blob/v4.4.7/components/newlib/COPYING.NEWLIB",
+    "sha256": "0681089a556e93791da82718d68011ba452de245f7f59c3846936304756ac0c0"
+  },
+  "wpa_supplicant.txt": {
+    "source": "https://github.com/espressif/esp-idf/blob/v4.4.7/components/wpa_supplicant/COPYING",
+    "sha256": "e9f84e02bb9ba965464e21604014f13d0f3c9299a1b5f7882574a9b4a261abe7"
+  },
+  "cJSON.txt": {
+    "source": "https://github.com/DaveGamble/cJSON/blob/87d8f0961a01bf09bef98ff89bae9fdec42181ee/LICENSE",
+    "sha256": "a36dda207c36db5818729c54e7ad4e8b0c6fba847491ba64f372c1a2037b6d5c"
+  },
+  "lwIP.txt": {
+    "source": "https://github.com/espressif/esp-lwip/blob/a45be9e438f6cf9c54ec150581819c3b95d5af6b/COPYING",
+    "sha256": "8fb15ebdb19eb669e1d37fcd8e57a44c477fcc0e93a9ab0d181760965f94d5ed"
+  },
+  "MbedTLS.txt": {
+    "source": "https://github.com/espressif/mbedtls/blob/2b8e772fc1cb0732cda3bae7d1e9d6f4cfaf63d9/LICENSE",
+    "sha256": "9b405ef4c89342f5eae1dd828882f931747f71001cfba7d114801039b52ad09b"
+  },
+  "protobuf-c.txt": {
+    "source": "https://github.com/protobuf-c/protobuf-c/blob/abc67a11c6db271bedbb9f58be85d6f4e2ea8389/LICENSE",
+    "sha256": "b8999cb392cc5bbe8cd679de59584ad8d2f26033123e76f1d662fa14b9d4f287"
+  },
+  "ESP-WiFi.txt": {
+    "source": "https://github.com/espressif/esp32-wifi-lib/blob/f2aae4d44ec7908013066e69d29b9948846c335c/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  "ESP-PHY.txt": {
+    "source": "https://github.com/espressif/esp-phy-lib/blob/dcfdccf6cc2fc02d0886624b7998c890d1a19b28/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  "ESP-Bluetooth.txt": {
+    "source": "https://github.com/espressif/esp32c3-bt-lib/blob/e5c0f7256ecf5b5f8eb28c1793051a6b88f95124/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  "GCC-runtime-exception.txt": {
+    "source": "PlatformIO toolchain-xtensa-esp32s3 8.4.0+2021r2-patch5/share/licenses/gcc/COPYING.RUNTIME",
+    "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74"
+  },
+  "GCC-GPLv3.txt": {
+    "source": "PlatformIO toolchain-xtensa-esp32s3 8.4.0+2021r2-patch5/share/licenses/gcc/COPYING3",
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "esp-aec",
+  "version": "1.9.5",
+  "build": {"extraScript": "link.py"},
+  "frameworks": "arduino",
+  "platforms": "espressif32"
+}

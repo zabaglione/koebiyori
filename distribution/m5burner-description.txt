@@ -1,0 +1,19 @@
+koebiyori（こえびより）— 手をかざすと、声と表情で応える小さなキャラクター。
+
+M5Stack CoreS3の内蔵マイク・スピーカー・画面で、声による割り込みができる会話とWeb検索を楽しめます。PCや自前の中継サーバーは会話中に不要です。サンプルキャラクター「サラ」が口や目を動かし、しばらく会話がなければ挨拶して待機へ戻ります。
+
+必要なもの：M5Stack CoreS3、2.4GHz Wi-Fi、利用者自身のOpenAI APIキー。gpt-live-1とgpt-5.6-lunaへのアクセスが必要です。API利用料金が発生し、ChatGPTの契約とは別です。音声・会話の文脈をOpenAIへ送信します。声はAIが生成します。
+
+設定：Burn完了後、USER CUSTOM > BurnerNVSでCoreS3にConnectします。wifi_ssid、wifi_password、openai_api_keyをGetで表示し、各項目を入力して保存します。statusを読み直してREADYを確認したら、Burner NVSを閉じて本体をリセットしてください。パスワードとAPIキーは再取得時に伏せ字になります。
+
+更新時もWi-FiとAPIキーを再設定してください。設定領域は暗号化していません。
+
+使い方：センサーの前を空けて待機し、手を短くかざします。開始音声の後、マイクのアイコンになったら話しかけてください。タップでミュート・終了ボタンを表示できます。
+
+コード：MIT。サラの画像・表情画像：CC BY-NC 4.0（非商用利用のみ）。開始音声：MIT。外部ライブラリはそれぞれのライセンスに従います。
+サラのイラスト：zabaglione。表情・色の加工にはAIを使用しています。
+出典・ソース・マニュアル・ライセンス：https://github.com/zabaglione/koebiyori
+このファームウェアにはLGPL 2.1のArduinoコアとWebSocketsを使用しています。各バージョンの配布ZIPには対応するアプリとライブラリのソース、再ビルド手順、ライセンスを同梱しています：https://github.com/zabaglione/koebiyori/releases
+CC BY-NC 4.0：https://creativecommons.org/licenses/by-nc/4.0/
+
+M5StackおよびOpenAIの公式製品ではありません。

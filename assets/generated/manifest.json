@@ -1,0 +1,47 @@
+{
+  "portrait": {
+    "offset": 0,
+    "width": 328,
+    "height": 248,
+    "position": [
+      0,
+      0
+    ]
+  },
+  "mouth_small": {
+    "offset": 162688,
+    "width": 48,
+    "height": 36,
+    "position": [
+      140,
+      162
+    ]
+  },
+  "mouth_open": {
+    "offset": 166144,
+    "width": 48,
+    "height": 36,
+    "position": [
+      140,
+      162
+    ]
+  },
+  "eye_left": {
+    "offset": 169600,
+    "width": 67,
+    "height": 59,
+    "position": [
+      88,
+      110
+    ]
+  },
+  "eye_right": {
+    "offset": 177506,
+    "width": 76,
+    "height": 62,
+    "position": [
+      175,
+      107
+    ]
+  }
+}
