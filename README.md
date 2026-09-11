@@ -18,6 +18,7 @@
 - 声に合わせた口の動き、まばたき、待機中の小さな揺れ
 - 30秒間会話がなければ「またね」と挨拶して待機へ復帰
 - 性格・声・検索・地域を設定ファイルで変更
+- M5Launcherから起動し、待機中の操作メニューからLauncherの起動画面へ戻る
 
 会話の音声は `gpt-live-1`、検索・推論は `gpt-5.6-luna` を使用します。モデルへのアクセス権とAPIの支払い設定を確認してください。検索内容は声で短く返します。
 
@@ -25,7 +26,7 @@
 
 M5Stack CoreS3、データ通信できるUSB-Cケーブル、書き込み用PC、2.4GHz Wi-Fi、OpenAI APIキーを用意します。
 
-M5Burnerでファームウェアを書き込み、Wi-FiとAPIキーを設定します。通常の利用にPythonやソースコードの編集は不要です。配布ファイルと対応するソースは [GitHub Releases](https://github.com/zabaglione/koebiyori/releases) にまとめています。
+ほかのアプリも切り替えて使う場合は、[M5Launcherから導入](docs/launcher.md)してください。koebiyori専用機として使う場合は、下記の手順で直接書き込めます。どちらも通常の利用にPythonやソースコードの編集は不要です。配布ファイルと対応するソースは [GitHub Releases](https://github.com/zabaglione/koebiyori/releases) にまとめています。
 
 1. [導入ガイド](docs/setup.md)に沿って、M5Burnerで `koebiyori` を書き込みます。
 2. M5Burnerの **BurnerNVS** でWi-FiとAPIキーを保存し、本体をリセットします。
@@ -40,6 +41,7 @@ M5Burnerでファームウェアを書き込み、Wi-FiとAPIキーを設定し�
 | 内容 | ガイド |
 | --- | --- |
 | APIキー、料金、インストール、操作、困ったとき | [初めて使う方へ](docs/setup.md) |
+| M5Launcherからインストール・起動・アプリ切り替え | [ランチャーで使う](docs/launcher.md) |
 | サラの性格・声・検索・イラストを変える | [カスタマイズ](docs/customization.md) |
 | 自分でビルド・配布ファイルを作成する | [ビルドガイド](docs/build.md) |
 | M5GFX、音声処理、近接センサーの仕組み | [ハードウェアと実装](docs/hardware.md) |

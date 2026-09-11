@@ -92,6 +92,13 @@ void CharacterUI::retryIcon(int x, int y, uint16_t color) {
   canvas.fillTriangle(x + 8, y - 10, x + 10, y, x, y - 3, color);
 }
 
+void CharacterUI::launcherIcon(int x, int y) {
+  canvas.fillCircle(x, y, 20, 0x4A4D);
+  for (int row = 0; row < 2; ++row)
+    for (int col = 0; col < 2; ++col)
+      canvas.fillRoundRect(x - 9 + col * 11, y - 9 + row * 11, 7, 7, 2, White);
+}
+
 void CharacterUI::statusIcon(State state, bool muted, uint32_t now) {
   const int x = 23, y = 23;
   glass(7, 7, 32, 32, 16, 211);
@@ -180,9 +187,14 @@ void CharacterUI::compose(Rect area, State state, bool connected, int bars, bool
       phoneIcon(160, 209, White, true);
       closeIcon(216, 210, White);
     } else if (canCall) {
-      canvas.fillCircle(132, 210, 21, state == State::Ready ? 0x2D12 : 0x7B0F);
-      if (state == State::Ready) phoneIcon(132, 209, White, false);
-      else retryIcon(132, 210, White);
+      const int callX = launcherAvailable ? 160 : 132;
+      if (launcherAvailable) launcherIcon(104, 210);
+      canvas.fillCircle(callX, 210, 21, state == State::Ready ? 0x2D12 : 0x7B0F);
+      if (state == State::Ready) phoneIcon(callX, 209, White, false);
+      else retryIcon(callX, 210, White);
+      closeIcon(launcherAvailable ? 216 : 196, 210, White);
+    } else if (launcherAvailable && (state == State::Setup || state == State::Wifi || state == State::Clock)) {
+      launcherIcon(132, 210);
       closeIcon(196, 210, White);
     } else closeIcon(160, 210, White);
   }
@@ -252,9 +264,16 @@ CharacterUI::Action CharacterUI::tap(int x, int y, State state, uint32_t now) {
   if (state == State::Live) {
     if (x >= 80 && x <= 128) return Action::ToggleMute;
     if (x >= 136 && x <= 184) { controls = false; return Action::End; }
-  } else if ((state == State::Ready || state == State::Error) && x >= 106 && x <= 158) {
-    controls = false;
-    return state == State::Ready ? Action::Start : Action::Retry;
+  } else if (state == State::Ready || state == State::Error) {
+    if (launcherAvailable && x >= 80 && x <= 128) { controls = false; return Action::Launcher; }
+    const int callX = launcherAvailable ? 160 : 132;
+    if (x >= callX - 26 && x <= callX + 26) {
+      controls = false;
+      return state == State::Ready ? Action::Start : Action::Retry;
+    }
+  } else if (launcherAvailable && (state == State::Setup || state == State::Wifi || state == State::Clock) &&
+             x >= 106 && x <= 158) {
+    controls = false; return Action::Launcher;
   } else if ((state == State::Connecting || state == State::Noticed) && x >= 136 && x <= 184) {
     controls = false; return Action::End;
   }

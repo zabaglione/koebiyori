@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a clean CoreS3 image for M5Burner. Never read flash from a device."""
+"""Build clean CoreS3 images for M5Burner and M5Launcher from build artifacts."""
 import hashlib
 import json
 from pathlib import Path
@@ -44,8 +44,10 @@ def main():
     if image[0x9000:0xe000] != b"\xff" * 0x5000: raise SystemExit("NVS is not blank")
 
     binary_name = f"koebiyori-{version}-cores3.bin"
+    app_name = f"koebiyori-{version}-cores3-app.bin"
     content = {
         binary_name: bytes(image),
+        app_name: segments[0x10000],
         "cover.png": (ROOT / "assets/generated/portrait.png").read_bytes(),
         "description.txt": (ROOT / "distribution/m5burner-description.txt").read_bytes(),
         "LICENSE": (ROOT / "LICENSE").read_bytes(),
@@ -66,12 +68,18 @@ def main():
              "github": "https://github.com/zabaglione/koebiyori", "firmware": binary_name,
              "cover": "cover.png", "description": "description.txt", "flash_address": "0x0000",
              "flash_size": "16MB", "nvs_blank": True,
+             "launcher": {"firmware": app_name, "format": "app-only", "device_type": "CoreS3",
+                          "guide": "https://github.com/zabaglione/koebiyori/blob/main/docs/launcher.md"},
              "settings": ["wifi_ssid", "wifi_password", "openai_api_key", "status"]}
     content["entry.json"] = (json.dumps(entry, indent=2) + "\n").encode()
     content["README.txt"] = (
         f"koebiyori {version} - M5Stack CoreS3\n\n"
         "Firmware: " + binary_name + "\nFlash address: 0x0000; flash size: 16 MB.\n"
         "This clean image contains blank NVS. Burning it replaces the app and resets settings.\n"
+        "It also replaces an installed Launcher when flashed directly over USB.\n\n"
+        "M5Launcher: " + app_name + " (app-only; install through Launcher, not direct USB burn).\n"
+        "Launcher installs the app in its own partition and keeps the existing NVS settings.\n"
+        "Launcher guide: https://github.com/zabaglione/koebiyori/blob/main/docs/launcher.md\n\n"
         "Configure Wi-Fi and your own OpenAI API key with M5Burner > USER CUSTOM > BurnerNVS.\n"
         "Save each field, read status, close Burner NVS, and restart CoreS3.\n"
         "Setup guide: https://github.com/zabaglione/koebiyori/blob/main/docs/setup.md\n"
@@ -85,7 +93,7 @@ def main():
         "Expression and color edits were made with AI; see assets/LICENSE.md.\n"
         "Bundled voice is AI generated. See THIRD_PARTY_NOTICES.md and licenses/.\n"
     ).encode()
-    check_public_content(content, firmware_names=[binary_name])
+    check_public_content(content, firmware_names=[binary_name, app_name])
     subprocess.run([sys.executable, "scripts/package_source.py"], cwd=ROOT, check=True)
     content["source.zip"] = (ROOT / "dist/source.zip").read_bytes()
     subprocess.run([sys.executable, "scripts/package_dependencies.py"], cwd=ROOT, check=True)
@@ -107,6 +115,7 @@ def main():
             archive.writestr(info, data)
     print(json.dumps({"event": "firmware_package_created", "version": version,
                       "firmware_bytes": len(image), "nvs_blank": True,
+                      "launcher_app_bytes": len(segments[0x10000]),
                       "sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest()}))
 
 

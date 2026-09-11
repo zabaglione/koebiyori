@@ -29,19 +29,26 @@ py -m venv .venv
 
 画像と開始音声は加工済みなので、通常のビルドにAPIキーやFFmpegは不要です。Wi-FiとAPIキーをソースコードへ書き込まないでください。
 
-## 本体へ書き込む
+## ビルドして本体へ書き込む
 
 [性格・声・画像](customization.md)を変更し、CoreS3をUSBで接続して次を実行します。
 
 ```sh
 .venv/bin/python -m platformio device list
 .venv/bin/python -m platformio run
+```
+
+**M5Launcherを使っている場合**は、生成された `.pio/build/cores3/firmware.bin` を[LauncherのWebUIまたはSDからインストール](launcher.md)します。PlatformIOの `upload` は実行しないでください。Launcherのブートローダーとパーティション構成を上書きしてしまいます。
+
+**直接起動する専用機の場合**は、次で書き込みます。
+
+```sh
 .venv/bin/python -m platformio run --target upload --upload-port PORT
 ```
 
 `PORT` は一覧にあるCoreS3のポートへ置き換えます。例：macOSの `/dev/cu.usbmodem...`、Linuxの `/dev/ttyACM0`、Windowsの `COM3`。
 
-この方法はアプリ部分などを書き換え、既存のkoebiyoriのWi-FiとAPIキーを保持します。初回は[Burner NVSの設定手順](setup.md#3-wi-fiとapiキーを保存する)で設定してください。
+同じ直接起動の構成へのPlatformIO書き込みは、既存のkoebiyoriのWi-FiとAPIキーを保持します。初回は[Burner NVSの設定手順](setup.md#3-wi-fiとapiキーを保存する)で設定してください。
 
 ## M5Burner用の配布ファイルを作る
 
@@ -54,6 +61,7 @@ py -m venv .venv
 | ファイル | 用途 |
 | --- | --- |
 | `koebiyori-VERSION-cores3.bin` | 0x0000から書き込む16MBフラッシュ向けの統合ファームウェア |
+| `koebiyori-VERSION-cores3-app.bin` | M5LauncherのWebUI・SDからインストールするアプリ単体 |
 | `cover.png` | M5Burnerのカバー画像 |
 | `description.txt` | M5Burnerの説明欄へ記載する文章 |
 | `entry.json` | 名前・バージョン・機種・ファイル名などの投稿用情報 |
@@ -64,13 +72,13 @@ py -m venv .venv
 
 同じ内容をまとめた `dist/koebiyori-VERSION-m5burner.zip` も作ります。`entry.json` は投稿欄を埋めるための控えで、M5Burnerへ読み込ませる形式ではありません。
 
-配布用 `.bin` はビルド成果物から作り、**NVSを空にします。設定済みの本体からExportしたデータは使いません。** この統合ファームウェアを本体へ書き込むと、Wi-FiとAPIキーを再設定する必要があります。`source.zip` は明示した配布対象ファイルだけを含みます。フォルダー全体をZIPにして配布しないでください。
+配布用 `.bin` はビルド成果物から作ります。統合版の**NVSは空にし、設定済みの本体からExportしたデータは使いません。** 統合版を直接書き込むとWi-FiとAPIキーの再設定が必要です。アプリ単体版にはブートローダー・パーティションテーブル・NVSを含めず、Launcherが割り当てた場所にインストールします。`source.zip` は明示した配布対象ファイルだけを含みます。フォルダー全体をZIPにして配布しないでください。
 
 ## M5Burnerへ掲載する
 
 [M5Stack公式の投稿手順](https://docs.m5stack.com/ja/uiflow/m5burner/publish)に沿って、M5Burnerにログインし **USER CUSTOM → Publish** を開きます。
 
-`entry.json` の内容を参考にName、Version、Device Type、GitHubを入力し、生成された `.bin` と `cover.png` を指定します。Descriptionには `description.txt` の内容を記載します。利用者自身のAPIキーが必要なこと、API料金、サラの画像のCC BY-NC 4.0と元リポジトリの表示を残してください。
+`entry.json` の内容を参考にName、Version、Device Type、GitHubを入力し、統合版の `koebiyori-VERSION-cores3.bin` と `cover.png` を指定します。アプリ単体版はGitHub Releasesに置き、LauncherのWebUI・SD向けに案内します。Descriptionには `description.txt` の内容を記載します。利用者自身のAPIキーが必要なこと、API料金、サラの画像のCC BY-NC 4.0と元リポジトリの表示を残してください。
 
 GitHub側にも対応するソースと配布ファイルを置き、各外部コンポーネントのソース・ライセンスにアクセスできる状態で掲載します。ファームウェアの投稿・公開状態はM5Burner側で操作します。このスクリプトは外部への投稿を行いません。
 

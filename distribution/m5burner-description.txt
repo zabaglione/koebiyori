@@ -6,7 +6,10 @@ M5Stack CoreS3の内蔵マイク・スピーカー・画面で、声による割
 
 設定：Burn完了後、USER CUSTOM > BurnerNVSでCoreS3にConnectします。wifi_ssid、wifi_password、openai_api_keyをGetで表示し、各項目を入力して保存します。statusを読み直してREADYを確認したら、Burner NVSを閉じて本体をリセットしてください。パスワードとAPIキーは再取得時に伏せ字になります。
 
-更新時もWi-FiとAPIキーを再設定してください。設定領域は暗号化していません。
+M5Launcherからも起動できます。Launcherを残す場合はPCのBurnを使わず、GitHub Releasesの「koebiyori-VERSION-cores3-app.bin」をLauncherのWebUIまたはSDからインストールしてください。起動後のAPI・Wi-Fi設定は同じBurner NVSで行います。待機画面をタップし、四つの四角のアイコンを押すとLauncherの起動画面へ戻れます。
+Launcher導入ガイド：https://github.com/zabaglione/koebiyori/blob/main/docs/launcher.md
+
+PCからの直接書き込みはLauncherや既存設定を上書きするため、更新時もWi-FiとAPIキーを再設定してください。Launcher経由のアプリ更新では設定を保持します。設定領域は暗号化していません。
 
 使い方：センサーの前を空けて待機し、手を短くかざします。開始音声の後、マイクのアイコンになったら話しかけてください。タップでミュート・終了ボタンを表示できます。
 

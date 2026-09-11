@@ -9,6 +9,7 @@
 #include <M5Unified.h>
 #include "burner_config.h"
 #include "device_log.h"
+#include "launcher_support.h"
 #include <esp_log.h>
 #include <WebSocketsClient.h>
 #include <WiFi.h>
@@ -23,7 +24,7 @@ SET_LOOP_TASK_STACK_SIZE(16384);
 DeviceLog deviceLog;
 
 namespace {
-constexpr char BUILD[] = "koebiyori-0.7.0";
+constexpr char BUILD[] = "koebiyori-0.8.0";
 constexpr uint32_t RATE = 16000;
 constexpr size_t FRAME = DuplexAudio::Frame;
 constexpr size_t MAX_MESSAGE = 65536;
@@ -146,6 +147,7 @@ void emitStatus() {
   doc["detail"] = detail;
   doc["wifi"] = WiFi.status() == WL_CONNECTED;
   doc["configured"] = !ssid.isEmpty() && !apiKey.isEmpty();
+  doc["launcher_available"] = character.launcherAvailable;
   doc["free_heap"] = ESP.getFreeHeap();
   doc["free_psram"] = ESP.getFreePsram();
   doc["loop_stack_min_free_bytes"] = uxTaskGetStackHighWaterMark(nullptr);
@@ -628,6 +630,20 @@ void drawUi() {
                  audio.takePlaybackPeak(), now);
 }
 
+void returnToLauncher() {
+  if (!character.launcherAvailable || transportActive || connectionPending || connectionActive) {
+    deviceLog.println("{\"event\":\"launcher_unavailable_or_busy\"}");
+    return;
+  }
+  proximity.enabled = false;
+  stopAudio();
+  WiFi.disconnect(true, false);
+  deviceLog.println("{\"event\":\"launcher_restart\"}");
+  Serial.flush();
+  M5.Display.setBrightness(0);
+  LauncherSupport::restart();
+}
+
 void handleTap(int x, int y) {
   if (burnerConfig.active) return;
   const auto action = character.tap(x, y, phase, millis());
@@ -636,6 +652,7 @@ void handleTap(int x, int y) {
     case CharacterUI::Action::Start: startSession(); break;
     case CharacterUI::Action::End: closeSession(); break;
     case CharacterUI::Action::Retry: connectWifi(); break;
+    case CharacterUI::Action::Launcher: returnToLauncher(); break;
     case CharacterUI::Action::ToggleMute:
       inputMuted = !inputMuted; audio.mute(inputMuted); break;
     default: break;
@@ -780,6 +797,7 @@ void command(const String& line) {
   }
   else if (!strcmp(cmd, "start")) startSession();
   else if (!strcmp(cmd, "end")) closeSession();
+  else if (!strcmp(cmd, "launcher")) returnToLauncher();
   else if (!strcmp(cmd, "mute") && phase == Phase::Live) { inputMuted = doc["enabled"] | false; audio.mute(inputMuted); uiDirty = true; }
   else if (!strcmp(cmd, "test")) audioTest();
   else if (!strcmp(cmd, "screen")) screenshot(doc["mouth"] | -1, doc["blink"] | -1);
@@ -840,6 +858,7 @@ void setup() {
     while (true) delay(1000);
   }
   serialLine.reserve(1500);
+  character.launcherAvailable = LauncherSupport::available();
   configureApiEventFilter(apiEventFilter);
   if (apiEventFilter.overflowed()) {
     deviceLog.println("{\"event\":\"fatal_event_filter\"}");

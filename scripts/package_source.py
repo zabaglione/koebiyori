@@ -13,7 +13,7 @@ from dotenv import dotenv_values
 ROOT = Path(__file__).resolve().parents[1]
 FILES = """
 .env.example .gitignore .gitattributes LICENSE README.md CONTRIBUTING.md THIRD_PARTY_NOTICES.md platformio.ini
-docs/setup.md docs/customization.md docs/hardware.md docs/build.md
+docs/setup.md docs/customization.md docs/hardware.md docs/build.md docs/launcher.md
 distribution/m5burner-description.txt
 distribution/licenses/Arduino-ESP32-LGPL.txt
 distribution/licenses/ESP-Bluetooth.txt
@@ -34,6 +34,7 @@ distribution/licenses/wpa_supplicant.txt
 config/character.json
 src/main.cpp src/assistant_config.h src/assistant_config.cpp
 src/burner_config.h src/burner_config.cpp src/device_log.h
+src/launcher_support.h src/launcher_support.cpp
 src/character_ui.h src/character_ui.cpp src/duplex_audio.h src/duplex_audio.cpp
 src/proximity_gate.h src/proximity_sensor.h src/proximity_sensor.cpp src/delegation_tracker.h src/playback_continuity.h src/api_event_filter.h src/microphone_level.h
 scripts/prepare_character.py scripts/prepare_startup_voice.py

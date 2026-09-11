@@ -1,6 +1,6 @@
 # 初めて使う方へ
 
-M5Burnerでアプリを書き込み、同じアプリの設定画面からWi-FiとAPIキーを保存します。通常の利用にPython、ソースコードの編集、自前の中継サーバーは不要です。
+このページでは、M5Burnerでkoebiyoriを直接書き込む方法と、共通のAPI・Wi-Fi設定を説明します。ほかのアプリも切り替えて使う方は、先に[ランチャーで使う](launcher.md)を参照してください。通常の利用にPython、ソースコードの編集、自前の中継サーバーは不要です。
 
 配布ファイルと対応するソースは [GitHub Releases](https://github.com/zabaglione/koebiyori/releases) からも取得できます。自分でファームウェアを作る場合は[ビルドガイド](build.md)を参照してください。
 
@@ -32,11 +32,13 @@ APIキーはOpenAIへの接続に使います。リポジトリの作者へ送�
 6. CoreS3のCOMポートを選び、書き込みを開始します。完了するまでUSBを抜かないでください。
 7. 書き込み画面を閉じ、CoreS3にサラが表示されるまで待ちます。
 
-**既存のアプリとWi-Fi・APIキーの設定は消去されます。** この配布ファームウェアは設定領域を空にしてあるため、更新時も次の手順で設定し直してください。
+**直接書き込むと、既存のLauncher・アプリとWi-Fi・APIキーの設定は消去されます。** この配布ファームウェアは設定領域を空にしてあるため、直接書き込みでの更新時も次の手順で設定し直してください。Launcherを残す場合は[Launcher経由のインストール](launcher.md)を使います。
 
 COMポートはWindowsでは `COM3` など、macOSでは `tty.usbmodem...`、Linuxでは `ttyACM0` などと表示されます。複数ある場合はUSBを抜き差しし、増減するポートを確認してください。
 
 ## 3. Wi-FiとAPIキーを保存する
+
+Launcherを利用する場合も、**先にkoebiyoriを起動し、サラが表示された状態**で設定します。Launcher自身のWi-Fi設定とは別に保存されます。
 
 1. M5Burnerの左側で **USER CUSTOM** を選び、**BurnerNVS** を押します。「Burner NVS」という設定画面が開きます。
 2. CoreS3のCOMポートを選び、**Connect** を押します。
@@ -50,7 +52,7 @@ COMポートはWindowsでは `COM3` など、macOSでは `tty.usbmodem...`、Lin
 
 4. 入力欄を書き換えたら、**その項目の保存アイコンを押すか、入力欄でEnterを押します。3項目それぞれを保存してください。**
 5. 最後に `status` の **Get** を押します。既に表示している場合は、その行の更新アイコンで読み直します。
-6. `READY - disconnect Burner NVS and restart CoreS3` と表示されたら、Burner NVSを閉じてCoreS3をリセットします。
+6. `READY - disconnect Burner NVS and restart CoreS3` と表示されたら、Burner NVSを閉じてCoreS3をリセットします。Launcherの画面が出た場合はkoebiyoriを選びます。
 7. Wi-Fiと時刻の同期が終わり、左上が待機アイコンになれば使えます。
 
 `status` は読み取り専用です。`READY` は入力内容が保存されたという意味で、Wi-Fi接続やAPIの利用権限は再起動後に確認されます。`ERROR` が出た場合は該当の項目を修正・保存し、`status` を読み直してください。M5Burner側の保存通知だけで判断しないでください。
