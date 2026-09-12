@@ -27,7 +27,7 @@ py -m venv .venv
 
 以下はmacOS / Linuxの表記です。Windowsでは `.venv/bin/python` を `.venv\Scripts\python.exe` に置き換えてください。
 
-画像と開始音声は加工済みなので、通常のビルドにAPIキーやFFmpegは不要です。Wi-FiとAPIキーをソースコードへ書き込まないでください。
+画像と開始チャイムは加工済みなので、通常のビルドにAPIキーやFFmpegは不要です。Wi-FiとAPIキーをソースコードへ書き込まないでください。
 
 ## ビルドして本体へ書き込む
 
@@ -117,4 +117,6 @@ LGPL対象ライブラリを変更する場合は、復元後に次のソース�
 
 [src/burner_config.cpp](../src/burner_config.cpp) が [M5BurnerNVSの通信形式](https://github.com/m5stack/M5BurnerNVS)に対応します。保存先はNVSの `koebiyori` 名前空間です。
 
-編集できるキーは `wifi_ssid`、`wifi_password`、`openai_api_key` に限定し、`status` は読み取り専用です。秘密値はGETで伏せ字にし、購読による送信も行いません。USB設定中は自動会話開始と通常ログを止め、保存した内容は再起動後に使います。
+編集できるキーは `wifi_ssid`、`wifi_password`、`openai_api_key`、`voice`、`voice_style` で、`status` は読み取り専用です。秘密値はGETで伏せ字にし、購読による送信も行いません。USB設定中は自動会話開始と通常ログを止めます。USB設定後は本体を再起動してください。本体のVOICE画面で保存した声と話し方は再起動なしで次の会話から使います。
+
+声と話し方はNVSの一つの `speech` 値へまとめて保存し、Saveで片方だけが更新されることを防ぎます。APIへは声を `audio.output.voice`、話し方を `instructions` へ渡します。会話中の `session.update` に音声設定を送ることはありません。

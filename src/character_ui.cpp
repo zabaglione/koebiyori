@@ -8,6 +8,11 @@ extern const uint8_t artworkEnd[] asm("_binary_assets_generated_sara_rgb_end");
 constexpr size_t AssetBytes = 186930;
 constexpr uint16_t Plum = 0x2949, White = 0xFFBF, Mint = 0x87B6, Pink = 0xFCB5, Amber = 0xFE2E;
 
+bool canChooseVoice(CharacterUI::State state) {
+  return state == CharacterUI::State::Ready || state == CharacterUI::State::Error ||
+         state == CharacterUI::State::Setup || state == CharacterUI::State::Wifi || state == CharacterUI::State::Clock;
+}
+
 uint16_t blend(uint16_t a, uint16_t b, unsigned opacity) {
   unsigned inv = 255 - opacity;
   return ((((a >> 11) * inv + (b >> 11) * opacity) / 255) << 11) |
@@ -176,6 +181,13 @@ void CharacterUI::compose(Rect area, State state, bool connected, int bars, bool
     canvas.setTextColor(White);
     canvas.drawString("WiFi", 280, 18);
   }
+  if (showControls && canChooseVoice(state) && intersects(100, 8, 120, 32)) {
+    glass(100, 8, 120, 32, 16, 234);
+    canvas.setFont(&fonts::Font2);
+    canvas.setTextDatum(MC_DATUM);
+    canvas.setTextColor(White);
+    canvas.drawString("VOICE", 160, 24);
+  }
   if (showControls && intersects(68, 184, 184, 52)) {
     const bool active = state == State::Live;
     const bool canCall = state == State::Ready || state == State::Error;
@@ -198,11 +210,47 @@ void CharacterUI::compose(Rect area, State state, bool connected, int bars, bool
       closeIcon(196, 210, White);
     } else closeIcon(160, 210, White);
   }
+  if (voicePicker.visible) drawVoicePicker();
   canvas.clearClipRect();
   M5.Display.setClipRect(area.x, area.y, area.w, area.h);
   canvas.pushSprite(0, 0);
   M5.Display.clearClipRect();
   pixelsSent += area.w * area.h;
+}
+
+void CharacterUI::drawVoicePicker() {
+  const auto& voice = SpeechOptions::Voices[voicePicker.selection.voice];
+  canvas.fillRoundRect(12, 12, 296, 220, 16, Plum);
+  canvas.drawRoundRect(12, 12, 296, 220, 16, 0x6B50);
+  canvas.setTextDatum(MC_DATUM);
+  canvas.setFont(&fonts::Font2);
+  canvas.setTextColor(White);
+  char heading[32];
+  snprintf(heading, sizeof(heading), "VOICE  %u / %u", static_cast<unsigned>(voicePicker.selection.voice + 1),
+           static_cast<unsigned>(SpeechOptions::VoiceCount));
+  canvas.drawString(heading, 160, 33);
+  canvas.fillRoundRect(24, 54, 50, 50, 12, 0x4A4D);
+  canvas.fillRoundRect(246, 54, 50, 50, 12, 0x4A4D);
+  canvas.fillTriangle(42, 79, 54, 70, 54, 88, White);
+  canvas.fillTriangle(278, 79, 266, 70, 266, 88, White);
+  canvas.setFont(&fonts::Font4);
+  canvas.drawString(voice.name, 160, 78);
+  canvas.setFont(&fonts::Font0);
+  canvas.drawString(voice.region, 160, 113);
+  canvas.drawString(voice.presentation, 160, 125);
+  canvas.fillRoundRect(64, 134, 192, 36, 10, 0x4A4D);
+  canvas.setFont(&fonts::Font2);
+  canvas.setTextColor(Mint);
+  canvas.drawString(String("Style: ") + SpeechOptions::Styles[voicePicker.selection.style].name, 160, 152);
+  canvas.setFont(&fonts::Font0);
+  canvas.setTextColor(voicePicker.saveFailed ? Pink : White);
+  canvas.drawString(voicePicker.saveFailed ? "Save failed. Try again." : "Applies to the next conversation", 160, 177);
+  canvas.fillRoundRect(24, 186, 126, 40, 12, 0x4A4D);
+  canvas.fillRoundRect(170, 186, 126, 40, 12, 0x2D12);
+  canvas.setFont(&fonts::Font2);
+  canvas.setTextColor(White);
+  canvas.drawString("Cancel", 87, 206);
+  canvas.drawString("Save", 233, 206);
 }
 
 void CharacterUI::draw(State state, bool connected, int rssi, bool muted, uint16_t playbackPeak,
@@ -222,17 +270,17 @@ void CharacterUI::draw(State state, bool connected, int rssi, bool muted, uint16
   }
   const bool closedEyes = blinkOverride >= 0 ? blinkOverride != 0 : (blinking || state == State::Noticed);
   // During a call, keep the portrait stationary so audio never competes with a full-screen sway update.
-  const int dx = audioState && cached ? lastDx : -4 + lroundf(1.3f * sinf(now * .00065f));
-  const int dy = audioState && cached ? lastDy : -4 + lroundf(1.4f * sinf(now * .0013f));
+  const int dx = voicePicker.visible ? -4 : audioState && cached ? lastDx : -4 + lroundf(1.3f * sinf(now * .00065f));
+  const int dy = voicePicker.visible ? -4 : audioState && cached ? lastDy : -4 + lroundf(1.4f * sinf(now * .0013f));
   const bool showControls = controlsVisible(now);
   if (!showControls) controls = false;
   const int bars = !connected ? 0 : rssi > -55 ? 3 : rssi > -72 ? 2 : 1;
   const uint32_t iconTick = now / 100;
   const bool iconAnimated = state == State::Connecting || state == State::Wifi || (state == State::Live && mouth && !muted);
-  Rect dirty[7];
+  Rect dirty[8];
   int count = 0;
   if (!cached || dx != lastDx || dy != lastDy) dirty[count++] = {0, 0, 320, 240};
-  else {
+  else if (!voicePicker.visible) {
     if (mouth != lastMouth) dirty[count++] = {140 + dx, 162 + dy, 48, 36};
     if (closedEyes != lastClosed) {
       dirty[count++] = {88 + dx, 110 + dy, 67, 59};
@@ -243,6 +291,8 @@ void CharacterUI::draw(State state, bool connected, int rssi, bool muted, uint16
     if (connected != lastConnected || bars != lastBars) dirty[count++] = {255, 8, 57, 27};
     if (showControls != lastControls || (showControls && (state != lastState || muted != lastMuted)))
       dirty[count++] = {68, 184, 184, 52};
+    if (showControls != lastControls || (showControls && canChooseVoice(state) != canChooseVoice(lastState)))
+      dirty[count++] = {100, 8, 120, 32};
   }
   cached = true;
   lastDx = dx; lastDy = dy; lastMouth = mouth; lastClosed = closedEyes;
@@ -258,8 +308,13 @@ void CharacterUI::draw(State state, bool connected, int rssi, bool muted, uint16
 }
 
 CharacterUI::Action CharacterUI::tap(int x, int y, State state, uint32_t now) {
+  if (voicePicker.visible) {
+    cached = false;
+    return voicePicker.tap(x, y) == SpeechOptions::Picker::Action::Save ? Action::SaveVoice : Action::None;
+  }
   if (!controlsVisible(now)) { controls = true; controlSince = now; return Action::None; }
   controlSince = now;
+  if (canChooseVoice(state) && x >= 100 && x < 220 && y >= 8 && y < 40) return Action::ChooseVoice;
   if (y < 184 || y > 238 || x < 68 || x > 252) { controls = false; return Action::None; }
   if (state == State::Live) {
     if (x >= 80 && x <= 128) return Action::ToggleMute;

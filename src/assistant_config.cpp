@@ -7,8 +7,11 @@ extern const char configJsonEnd[] asm("_binary_config_character_json_end");
 
 bool AssistantConfig::begin() {
   if (deserializeJson(profile, configJson, configJsonEnd - configJson)) return false;
-  for (const auto key : {"name", "voice", "backend_model", "reasoning_effort", "timezone", "greeting", "farewell"})
+  for (const auto key : {"name", "voice", "voice_style", "backend_model", "reasoning_effort", "timezone", "greeting", "farewell"})
     if (!profile[key].is<const char*>() || !strlen(profile[key])) return false;
+  if (SpeechOptions::voiceIndex(defaultVoice()) < 0 || SpeechOptions::styleIndex(defaultVoiceStyle()) < 0) return false;
+  for (const auto& style : SpeechOptions::Styles)
+    if (!profile["voice_styles"][style.id].is<const char*>() || !strlen(profile["voice_styles"][style.id])) return false;
   if (!profile["personality"].is<JsonArrayConst>() || !profile["personality"].size()) return false;
   for (JsonVariantConst rule : profile["personality"].as<JsonArrayConst>())
     if (!rule.is<const char*>()) return false;
@@ -33,10 +36,12 @@ String AssistantConfig::clockContext(time_t now) const {
   return context;
 }
 
-void AssistantConfig::session(JsonObject target, uint32_t sampleRate, time_t now) const {
+void AssistantConfig::session(JsonObject target, uint32_t sampleRate, time_t now, SpeechOptions::Selection speech) const {
   target["model"] = "gpt-live-1";
   String instructions = "Your name is "; instructions += profile["name"].as<const char*>(); instructions += ".\n";
   for (const char* rule : profile["personality"].as<JsonArrayConst>()) { instructions += rule; instructions += '\n'; }
+  instructions += profile["voice_styles"][SpeechOptions::Styles[speech.style].id].as<const char*>();
+  instructions += '\n';
   instructions +=
       "Speak Japanese unless asked otherwise. Keep the conversation natural and brief. "
       "Backchannel policy: brief, moderate backchannels. "
@@ -55,7 +60,7 @@ void AssistantConfig::session(JsonObject target, uint32_t sampleRate, time_t now
   target["instructions"] = instructions;
   target["audio"]["format"]["type"] = "audio/pcm";
   target["audio"]["format"]["rate"] = sampleRate;
-  target["audio"]["output"]["voice"] = profile["voice"];
+  target["audio"]["output"]["voice"] = SpeechOptions::Voices[speech.voice].id;
   target["delegation"]["type"] = "responses";
   auto backend = target["delegation"]["responses"].to<JsonObject>();
   backend["model"] = profile["backend_model"];

@@ -70,7 +70,7 @@ def main():
              "flash_size": "16MB", "nvs_blank": True,
              "launcher": {"firmware": app_name, "format": "app-only", "device_type": "CoreS3",
                           "guide": "https://github.com/zabaglione/koebiyori/blob/main/docs/launcher.md"},
-             "settings": ["wifi_ssid", "wifi_password", "openai_api_key", "status"]}
+             "settings": ["wifi_ssid", "wifi_password", "openai_api_key", "voice", "voice_style", "status"]}
     content["entry.json"] = (json.dumps(entry, indent=2) + "\n").encode()
     content["README.txt"] = (
         f"koebiyori {version} - M5Stack CoreS3\n\n"
@@ -91,7 +91,7 @@ def main():
         "Code: MIT. Sara artwork and derivatives: CC BY-NC 4.0, non-commercial use only.\n"
         "Artwork attribution: Sara by zabaglione, https://github.com/zabaglione/koebiyori\n"
         "Expression and color edits were made with AI; see assets/LICENSE.md.\n"
-        "Bundled voice is AI generated. See THIRD_PARTY_NOTICES.md and licenses/.\n"
+        "Startup chime is synthesized locally. Conversation speech is AI generated. See THIRD_PARTY_NOTICES.md and licenses/.\n"
     ).encode()
     check_public_content(content, firmware_names=[binary_name, app_name])
     subprocess.run([sys.executable, "scripts/package_source.py"], cwd=ROOT, check=True)

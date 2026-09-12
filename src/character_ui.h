@@ -1,15 +1,21 @@
 #pragma once
 #include <M5Unified.h>
+#include "speech_options.h"
 
 class CharacterUI {
  public:
   enum class State { Setup, Wifi, Clock, Ready, Noticed, Connecting, Live, Closing, Error };
-  enum class Action { None, Start, End, ToggleMute, Retry, Launcher };
+  enum class Action { None, Start, End, ToggleMute, Retry, Launcher, ChooseVoice, SaveVoice };
   explicit CharacterUI(M5Canvas& target) : canvas(target) {}
   bool begin();
   void draw(State state, bool connected, int rssi, bool muted, uint16_t playbackPeak,
             uint32_t now, int mouthOverride = -1, int blinkOverride = -1);
   Action tap(int x, int y, State state, uint32_t now);
+  void openVoicePicker(SpeechOptions::Selection saved) { voicePicker.open(saved); controls = false; cached = false; }
+  void closeVoicePicker() { voicePicker.close(); cached = false; }
+  void voiceSaveFailed() { voicePicker.saveFailed = true; cached = false; }
+  bool voicePickerVisible() const { return voicePicker.visible; }
+  SpeechOptions::Selection selectedSpeech() const { return voicePicker.selection; }
   bool controlsVisible(uint32_t now) const { return controls && now - controlSince < 5000; }
   uint32_t frameCount = 0, mouthFrames = 0, blinkCount = 0, maxDrawUs = 0;
   uint64_t pixelsSent = 0;
@@ -27,6 +33,8 @@ class CharacterUI {
   void retryIcon(int x, int y, uint16_t color);
   void launcherIcon(int x, int y);
   void statusIcon(State state, bool muted, uint32_t now);
+  void drawVoicePicker();
+  SpeechOptions::Picker voicePicker;
   struct Rect { int x, y, w, h; };
   void compose(Rect area, State state, bool connected, int bars, bool muted,
                bool closedEyes, bool showControls, int dx, int dy, uint32_t now);

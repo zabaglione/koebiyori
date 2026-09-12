@@ -24,7 +24,7 @@ SET_LOOP_TASK_STACK_SIZE(16384);
 DeviceLog deviceLog;
 
 namespace {
-constexpr char BUILD[] = "koebiyori-0.8.0";
+constexpr char BUILD[] = "koebiyori-0.9.0";
 constexpr uint32_t RATE = 16000;
 constexpr size_t FRAME = DuplexAudio::Frame;
 constexpr size_t MAX_MESSAGE = 65536;
@@ -148,6 +148,10 @@ void emitStatus() {
   doc["wifi"] = WiFi.status() == WL_CONNECTED;
   doc["configured"] = !ssid.isEmpty() && !apiKey.isEmpty();
   doc["launcher_available"] = character.launcherAvailable;
+  const auto speech = burnerConfig.speech();
+  doc["voice"] = SpeechOptions::Voices[speech.voice].id;
+  doc["voice_style"] = SpeechOptions::Styles[speech.style].id;
+  doc["voice_picker_visible"] = character.voicePickerVisible();
   doc["free_heap"] = ESP.getFreeHeap();
   doc["free_psram"] = ESP.getFreePsram();
   doc["loop_stack_min_free_bytes"] = uxTaskGetStackHighWaterMark(nullptr);
@@ -448,7 +452,7 @@ void socketEvent(WStype_t type, uint8_t* payload, size_t length) {
       connectedMs = millis() - connectRequestedAt;
       JsonDocument doc;
       doc["type"] = "session.start";
-      assistantConfig.session(doc["session"].to<JsonObject>(), RATE, time(nullptr));
+      assistantConfig.session(doc["session"].to<JsonObject>(), RATE, time(nullptr), burnerConfig.speech());
       if (!sendJson(doc)) fail("Session start send failed");
       break;
     }
@@ -498,6 +502,7 @@ void pollConnection() {
 }
 
 void startSession(bool fromPresence = false) {
+  if (character.voicePickerVisible() || burnerConfig.active) return;
   if (connectionPending || (phase != Phase::Ready && phase != Phase::Noticed)) return;
   if (WiFi.status() != WL_CONNECTED) { fail("Wi-Fi unavailable"); return; }
   if (time(nullptr) < 1704067200) { fail("Clock not synchronized"); return; }
@@ -646,13 +651,29 @@ void returnToLauncher() {
 
 void handleTap(int x, int y) {
   if (burnerConfig.active) return;
+  const bool wasChoosingVoice = character.voicePickerVisible();
   const auto action = character.tap(x, y, phase, millis());
+  if (wasChoosingVoice) proximity.block(millis());
   uiDirty = true;
   switch (action) {
     case CharacterUI::Action::Start: startSession(); break;
     case CharacterUI::Action::End: closeSession(); break;
     case CharacterUI::Action::Retry: connectWifi(); break;
     case CharacterUI::Action::Launcher: returnToLauncher(); break;
+    case CharacterUI::Action::ChooseVoice:
+      if (!transportActive && !connectionPending && !connectionActive) {
+        character.openVoicePicker(burnerConfig.speech());
+        proximity.block(millis());
+      }
+      break;
+    case CharacterUI::Action::SaveVoice:
+      if (transportActive || connectionPending || connectionActive || !burnerConfig.saveSpeech(character.selectedSpeech())) {
+        character.voiceSaveFailed();
+      } else {
+        character.closeVoicePicker();
+        deviceLog.println("{\"event\":\"voice_saved\"}");
+      }
+      break;
     case CharacterUI::Action::ToggleMute:
       inputMuted = !inputMuted; audio.mute(inputMuted); break;
     default: break;
@@ -727,6 +748,7 @@ __attribute__((noinline)) void screenshot(int mouth = -1, int blink = -1) {
 
 void command(const String& line) {
   if (line.startsWith("CMD::")) {
+    if (character.voicePickerVisible()) character.closeVoicePicker();
     deviceLog.enabled = false;
     burnerConfig.handle(line, transportActive || connectionPending);
     if (burnerConfig.active) proximity.block(millis());
@@ -769,7 +791,7 @@ void command(const String& line) {
   else if (!strcmp(cmd, "export_config")) {
     if (transportActive) { deviceLog.println("{\"event\":\"export_busy\"}"); return; }
     JsonDocument config(&jsonAllocator);
-    assistantConfig.session(config.to<JsonObject>(), RATE, time(nullptr));
+    assistantConfig.session(config.to<JsonObject>(), RATE, time(nullptr), burnerConfig.speech());
     String serialized;
     serializeJson(config, serialized);
     const size_t capacity = ((serialized.length() + 2) / 3) * 4 + 1;
@@ -864,7 +886,7 @@ void setup() {
     deviceLog.println("{\"event\":\"fatal_event_filter\"}");
     while (true) delay(1000);
   }
-  if (!burnerConfig.begin()) {
+  if (!burnerConfig.begin(assistantConfig.defaultVoice(), assistantConfig.defaultVoiceStyle())) {
     setPhase(Phase::Error, "Settings storage unavailable");
     drawUi();
     return;
@@ -949,7 +971,7 @@ void loop() {
     if (!sendJson(event)) fail("Speech cue send failed");
     else deviceLog.println("{\"event\":\"utterance_cue_sent\"}");
   }
-  if (proximity.poll(millis(), phase == Phase::Ready && !transportActive && !burnerConfig.active)) {
+  if (proximity.poll(millis(), phase == Phase::Ready && !transportActive && !burnerConfig.active && !character.voicePickerVisible())) {
     ++presenceStarts;
     setPhase(Phase::Noticed, "Hand detected");
     startSession(true);

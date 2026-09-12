@@ -22,8 +22,8 @@
 
 切り出し位置は [scripts/prepare_character.py](../scripts/prepare_character.py) にあります。画像の差し替え方は[カスタマイズ](../docs/customization.md)を参照してください。
 
-## 開始音声
+## 開始チャイム
 
-`audio/startup.wav` はOpenAI Speech APIで生成したAI音声です。`generated/startup.pcm` は本体再生用の16kHz・モノラル・16bit PCMです。画像とは別に[MITライセンス](LICENSE.md#開始音声)で提供します。
+`audio/startup.wav` は [scripts/prepare_startup_cue.py](../scripts/prepare_startup_cue.py) で合成した約0.7秒の電子チャイムです。`generated/startup.pcm` は本体再生用の16kHz・モノラル・16bit PCMです。画像とは別に[MITライセンス](LICENSE.md#開始チャイム)で提供します。
 
-開始音声は本体に保存して再生するため、起動のたびに音声生成APIを呼び出す必要はありません。声や台詞の変更方法は[開始音声を変える](../docs/customization.md#開始音声を変える)を参照してください。
+チャイムは全ての声で共通です。本体に保存して再生し、生成にも再生にもAPIを使いません。変更方法は[開始チャイムを変える](../docs/customization.md#開始チャイムを変える)を参照してください。接続後の挨拶はGPT-Liveが選択中の声で話します。

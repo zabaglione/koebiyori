@@ -33,11 +33,12 @@ distribution/licenses/protobuf-c.txt
 distribution/licenses/wpa_supplicant.txt
 config/character.json
 src/main.cpp src/assistant_config.h src/assistant_config.cpp
+src/speech_options.h
 src/burner_config.h src/burner_config.cpp src/device_log.h
 src/launcher_support.h src/launcher_support.cpp
 src/character_ui.h src/character_ui.cpp src/duplex_audio.h src/duplex_audio.cpp
 src/proximity_gate.h src/proximity_sensor.h src/proximity_sensor.cpp src/delegation_tracker.h src/playback_continuity.h src/api_event_filter.h src/microphone_level.h
-scripts/prepare_character.py scripts/prepare_startup_voice.py
+scripts/prepare_character.py scripts/prepare_startup_cue.py
 scripts/package_source.py scripts/package_firmware.py scripts/package_dependencies.py scripts/requirements.txt
 assets/README.md assets/LICENSE.md assets/source/sara-front.png
 assets/source/sara-expressions.png

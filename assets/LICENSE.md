@@ -20,6 +20,6 @@
 
 正式な条件は[ライセンス全文](https://creativecommons.org/licenses/by-nc/4.0/legalcode.ja)です。画像の表示・再配布に関する無保証なども、このライセンスの条件に従います。
 
-## 開始音声
+## 開始チャイム
 
-`audio/startup.wav` と `generated/startup.pcm` はOpenAI Speech APIで生成したAI音声です。サラのイラストライセンスの対象外です。本プロジェクトの提供者が有する権利の範囲で、プロジェクト同梱のコードと同様に[MITライセンス](../LICENSE)で提供します。実在の人物の録音・声のクローンではありません。
+`audio/startup.wav` と `generated/startup.pcm` は同梱の生成スクリプトで合成した電子チャイムです。サラのイラストライセンスの対象外です。本プロジェクトの提供者が有する権利の範囲で、プロジェクト同梱のコードと同様に[MITライセンス](../LICENSE)で提供します。
